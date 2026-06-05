@@ -43,5 +43,5 @@ export default defineConfig({
   },
 
   // Please replace with your blog url if you are using CDN (JsDelivr)
-  origin: 'https://blogger-pwa.blogspot.com',
+  origin: 'https://app.jastar.id',
 });
