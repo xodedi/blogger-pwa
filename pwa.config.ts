@@ -4,8 +4,8 @@ export default defineConfig({
   manifest: {
     id: '/',
     name: 'My Blog',
-    short_name: 'My Blog',
-    description: 'My blog description goes here...',
+    short_name: 'NotGen',
+    description: 'Admin Nota Generator',
     dir: 'auto',
     lang: 'en-US',
     background_color: '#fff',
