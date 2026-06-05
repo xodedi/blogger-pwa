@@ -3,11 +3,11 @@ import { defineConfig } from '@/types/config';
 export default defineConfig({
   manifest: {
     id: '/',
-    name: 'My Blog',
+    name: 'Nota Generate App',
     short_name: 'NotGen',
-    description: 'Admin Nota Generator',
+    description: 'Nota Generator for Jastar Admin',
     dir: 'auto',
-    lang: 'en-US',
+    lang: 'en-ID',
     background_color: '#fff',
     theme_color: '#fff',
     display: 'standalone',
