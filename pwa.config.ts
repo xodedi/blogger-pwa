@@ -13,20 +13,20 @@ export default defineConfig({
     display: 'standalone',
     orientation: 'natural',
     scope: '/',
-    start_url: '/?utm_source=homescreen',
+    start_url: '/',
     prefer_related_applications: false,
     shortcuts: [
       {
         name: 'Shortcut 1',
         short_name: 'Shortcut 1',
         description: 'Shortcut 1 description goes here...',
-        url: '/search/label/shortcut-1?utm_source=homescreen',
+        url: '/',
       },
       {
         name: 'Shortcut 2',
         short_name: 'Shortcut 2',
         description: 'Shortcut 2 description goes here...',
-        url: '/search/label/shortcut-2?utm_source=homescreen',
+        url: '/',
       },
     ],
   },
