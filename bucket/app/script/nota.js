@@ -1,1 +1,163 @@
-let lastGeneratedNota="";function capitalizeWords(e){return e.replace(/\b\w+/g,(e=>e.charAt(0).toUpperCase()+e.slice(1).toLowerCase()))}function updatePreviewNota(){const e=ambilKodeUser(),t=ambilTanggalStr(),a=ambilUrutanNota(t,!1);document.getElementById("preview_nota").textContent=`${e}-${t}-${a}`}function generateNotaNumber(){const e=ambilTanggalStr();return`_No.${ambilKodeUser(!0)}-${e}-${ambilUrutanNota(e,!0)}_`}function ambilTanggalStr(){const e=new Date,t=e=>e.toString().padStart(2,"0");return`${e.getFullYear().toString().slice(-2)}${t(e.getMonth()+1)}${t(e.getDate())}`}function ambilKodeUser(e=!1){const t=document.getElementById("kode_user").value.trim()||localStorage.getItem("kodeUserDefault")||"JS1";return e&&localStorage.setItem("kodeUserDefault",t),t}function ambilUrutanNota(e,t){let a=localStorage.getItem("lastNotaDate")===e?parseInt(localStorage.getItem("lastNotaUrut")||"0")+1:1;return t&&(localStorage.setItem("lastNotaDate",e),localStorage.setItem("lastNotaUrut",a)),a.toString().padStart(3,"0")}function ambilOngkir(e,t){return"berdua"===t?e<4?15e3:Math.floor(4e3*e):e>3.9?Math.floor(2500*e):9e3}function buatNota(){const e=ambilArrayInput("lokasi"),t=ambilArrayInput("produk_harga"),a=parseInt(document.getElementById("jumlah_lokasi").value)||1,n=parseFloat(document.getElementById("jarak").value)||3.9,o=1e3*(parseInt(document.getElementById("parkir").value)||0),r=document.getElementById("driver").value.trim()||localStorage.getItem("defaultDriver")||"Dedy Styawan";if(localStorage.setItem("defaultDriver",r),e.length>a)return void alert("Jumlah lokasi tidak sesuai dengan jumlah nama lokasi yang dimasukkan. Mohon cek ulang!");const{produk:l,harga:i}=pecahProdukHarga(t),u=document.querySelector('input[name="ongkir_mode"]:checked').value,d=ambilOngkir(n,u),c=a>1?2e3+3e3*Math.max(0,a-2):0,m=d+c,s=i.reduce(((e,t)=>e+t),0),g=s+o+m,p=e.length<a?`${e.map(capitalizeWords).join(", ")} (dan lainnya)`:e.map(capitalizeWords).join(", "),k=l.map(((e,t)=>`- ${e.padEnd(19)}Rp${i[t].toLocaleString()}`)).join("\n"),h=n>3.9?`~${n} km`:"<4 km",I=1===a?"":`- Ambil di ${a} Lokasi Rp${c.toLocaleString()}\n`,b="berdua"===u?"Ongkir(berdua)":"Ongkos Kirim",f=`*NOTA ELEKTRONIK || _JASTAR.id_*\n- ${generateNotaNumber()}\n============================\nPelanggan Yth. Kamu telah pesan delivery dari: ${p}\n- _Rincian Pembayaran:_\n${k}\n- - - - - - - - - - - - - - -\n- Subtotal        Rp${s.toLocaleString()}-\n ${I}- ${b} ${h} Rp${d.toLocaleString()}\n- Biaya parkir Rp${o.toLocaleString()}\n*============================*\n📌 **Total Harga : Rp${g.toLocaleString()}**\n*============================*\nDiantar oleh: ${r}\n_Dengan terbitnya nota ini berarti makanan / barang telah dibeli. Terima kasih_`;lastGeneratedNota=f;const v=`intent://send/?text=${encodeURIComponent(f)}#Intent;scheme=whatsapp;package=com.whatsapp.w4b;end`;try{window.location.href=v}catch{alert("Gagal membuka WhatsApp. Silakan salin nota secara manual.")}}function clearInput(){["lokasi","produk_harga","jumlah_lokasi","jarak","parkir","driver","kode_user"].forEach((e=>{document.getElementById(e).value=""})),document.getElementById("mode_biasa").checked=!0,document.getElementById("lokasi").focus(),updatePreviewNota()}function ambilArrayInput(e){return document.getElementById(e).value.split(",").map((e=>e.trim())).filter(Boolean)}function pecahProdukHarga(e){const t=[],a=[];return e.forEach((e=>{const n=e.lastIndexOf(" ");n>0&&(t.push(capitalizeWords(e.slice(0,n).trim())),a.push(parseInt(e.slice(n+1).trim())))})),{produk:t,harga:a}}window.onload=()=>{const e=document.getElementById("lokasi");e.focus();const t=document.getElementById("driver"),a=localStorage.getItem("defaultDriver");a&&(t.placeholder=a);const n=document.getElementById("kode_user"),o=localStorage.getItem("kodeUserDefault");o&&(n.placeholder=o,n.value=o),updatePreviewNota(),n.addEventListener("input",updatePreviewNota),window.addEventListener("touchstart",(function t(){e.focus(),window.removeEventListener("touchstart",t)}))},document.getElementById("parkir").addEventListener("input",(function(){this.value.length>1&&(this.value=this.value.slice(0,1))})),document.getElementById("parkir").addEventListener("keydown",(function(e){"Enter"===e.key&&buatNota()}));
+let lastGeneratedNota = '';
+
+window.onload = () => {
+  const lokasiInput = document.getElementById("lokasi");
+  lokasiInput.focus();
+
+  const driverInput = document.getElementById("driver");
+  const savedDriver = localStorage.getItem("defaultDriver");
+  if (savedDriver) driverInput.placeholder = savedDriver;
+
+  const kodeUserInput = document.getElementById("kode_user");
+  const savedKodeUser = localStorage.getItem("kodeUserDefault");
+  if (savedKodeUser) {
+    kodeUserInput.placeholder = savedKodeUser;
+    kodeUserInput.value = savedKodeUser;
+  }
+
+  updatePreviewNota();
+  kodeUserInput.addEventListener("input", updatePreviewNota);
+
+  window.addEventListener("touchstart", function handler() {
+    lokasiInput.focus();
+    window.removeEventListener("touchstart", handler);
+  });
+};
+
+document.getElementById("parkir").addEventListener("input", function () {
+  if (this.value.length > 1) this.value = this.value.slice(0, 1);
+});
+document.getElementById("parkir").addEventListener("keydown", function (e) {
+  if (e.key === "Enter") buatNota();
+});
+
+function capitalizeWords(str) {
+  return str.replace(/\b\w+/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+}
+
+function updatePreviewNota() {
+  const kodeUser = ambilKodeUser();
+  const tanggalStr = ambilTanggalStr();
+  const nomorUrut = ambilUrutanNota(tanggalStr, false);
+  document.getElementById("preview_nota").textContent = `${kodeUser}-${tanggalStr}-${nomorUrut}`;
+}
+
+function generateNotaNumber() {
+  const tanggalStr = ambilTanggalStr();
+  const kodeUser = ambilKodeUser(true);
+  const nomorUrut = ambilUrutanNota(tanggalStr, true);
+  return `_No.${kodeUser}-${tanggalStr}-${nomorUrut}_`;
+}
+
+function ambilTanggalStr() {
+  const now = new Date();
+  const pad = n => n.toString().padStart(2, '0');
+  return `${now.getFullYear().toString().slice(-2)}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
+}
+
+function ambilKodeUser(simpan = false) {
+  const input = document.getElementById("kode_user").value.trim();
+  const kode = input || localStorage.getItem("kodeUserDefault") || "JS1";
+  if (simpan) localStorage.setItem("kodeUserDefault", kode);
+  return kode;
+}
+
+function ambilUrutanNota(tanggalStr, simpan) {
+  const lastDate = localStorage.getItem("lastNotaDate");
+  let urut = (lastDate === tanggalStr) ? (parseInt(localStorage.getItem("lastNotaUrut") || '0') + 1) : 1;
+  if (simpan) {
+    localStorage.setItem("lastNotaDate", tanggalStr);
+    localStorage.setItem("lastNotaUrut", urut);
+  }
+  return urut.toString().padStart(3, '0');
+}
+
+function ambilOngkir(jarak, mode) {
+  return mode === 'berdua'
+    ? (jarak < 4 ? 15000 : Math.floor(jarak * 4000))
+    : (jarak > 3.9 ? Math.floor(jarak * 2500) : 9000);
+}
+
+function buatNota() {
+  const lokasi = ambilArrayInput("lokasi");
+  const produkHargaRaw = ambilArrayInput("produk_harga");
+  const jumlah_lokasi = parseInt(document.getElementById("jumlah_lokasi").value) || 1;
+  const jarak = parseFloat(document.getElementById("jarak").value) || 3.9;
+  const parkir = (parseInt(document.getElementById("parkir").value) || 0) * 1000;
+  const driverInput = document.getElementById("driver").value.trim();
+  const driver = driverInput || localStorage.getItem("defaultDriver") || "Dedy Styawan";
+  localStorage.setItem("defaultDriver", driver);
+
+  if (lokasi.length > jumlah_lokasi) {
+    alert("Jumlah lokasi tidak sesuai dengan jumlah nama lokasi yang dimasukkan. Mohon cek ulang!");
+    return;
+  }
+
+  const { produk, harga } = pecahProdukHarga(produkHargaRaw);
+  const ongkirMode = document.querySelector('input[name="ongkir_mode"]:checked').value;
+  const ongkirDasarFinal = ambilOngkir(jarak, ongkirMode);
+  const tambahanLokasi = jumlah_lokasi > 1 ? 2000 + Math.max(0, jumlah_lokasi - 2) * 3000 : 0;
+  const ongkirTotal = ongkirDasarFinal + tambahanLokasi;
+  const subtotal = harga.reduce((a, b) => a + b, 0);
+  const total = subtotal + parkir + ongkirTotal;
+
+  const lokasiText = lokasi.length < jumlah_lokasi
+    ? `${lokasi.map(capitalizeWords).join(", ")} (dan lainnya)`
+    : lokasi.map(capitalizeWords).join(", ");
+  const produkList = produk.map((p, i) => `- ${p.padEnd(19)}Rp${harga[i].toLocaleString()}`).join("\n");
+  const jarakText = jarak > 3.9 ? `~${jarak} km` : "<4 km";
+  const lokasiLine = jumlah_lokasi === 1 ? "" : `- Ambil di ${jumlah_lokasi} Lokasi Rp${tambahanLokasi.toLocaleString()}\n`;
+  const ongkirLabel = ongkirMode === 'berdua' ? "Ongkir(berdua)" : "Ongkos Kirim";
+  const notaNumber = generateNotaNumber();
+
+  const nota = `*NOTA ELEKTRONIK || _jastar.id_*
+- ${notaNumber}
+============================
+Pelanggan Yth. Kamu telah pesan delivery dari: ${lokasiText}
+- _Rincian Pembayaran:_
+${produkList}
+- - - - - - - - - - - - - - -
+- Subtotal        Rp${subtotal.toLocaleString()}
+${lokasiLine}- ${ongkirLabel} ${jarakText} Rp${ongkirDasarFinal.toLocaleString()}
+- Biaya parkir Rp${parkir.toLocaleString()}
+*============================*
+📌 **Total Harga : Rp${total.toLocaleString()}**
+*============================*
+Diantar oleh: ${driver}
+_Dengan terbitnya nota ini berarti makanan / barang telah dibeli. Terimakasih_`;
+
+  lastGeneratedNota = nota;
+  const encodedMessage = encodeURIComponent(nota);
+  const intentUrl = `intent://send/?text=${encodedMessage}#Intent;scheme=whatsapp;package=com.whatsapp.w4b;end`;
+
+  try {
+    window.location.href = intentUrl;
+  } catch {
+    alert("Gagal membuka WhatsApp. Silakan salin nota secara manual.");
+  }
+}
+
+function clearInput() {
+  ["lokasi", "produk_harga", "jumlah_lokasi", "jarak", "parkir", "driver", "kode_user"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+  document.getElementById("mode_biasa").checked = true;
+  document.getElementById("lokasi").focus();
+  updatePreviewNota();
+}
+
+function ambilArrayInput(id) {
+  return document.getElementById(id).value.split(",").map(x => x.trim()).filter(Boolean);
+}
+
+function pecahProdukHarga(list) {
+  const produk = [], harga = [];
+  list.forEach(item => {
+    const lastSpace = item.lastIndexOf(" ");
+    if (lastSpace > 0) {
+      produk.push(capitalizeWords(item.slice(0, lastSpace).trim()));
+      harga.push(parseInt(item.slice(lastSpace + 1).trim()));
+    }
+  });
+  return { produk, harga };
+}
