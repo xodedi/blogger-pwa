@@ -55,7 +55,7 @@ if ('serviceWorker' in navigator) {
       if (registration?.active?.scriptURL) {
         logs.push([`Script:  ${registration.active.scriptURL}`]);
       }
-      logs.push(['Build by: Fineshop Design (https://fineshopdesign.com)']);
+      logs.push(['Build by: Fineshop Design']);
 
       groupLog(['%c[sw] Registered successfully', 'color: green'], logs);
     })
